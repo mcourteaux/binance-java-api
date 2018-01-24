@@ -6,16 +6,18 @@ import com.binance.api.client.domain.event.DepthEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
 import com.binance.api.client.domain.market.CandlestickInterval;
 
+import okhttp3.WebSocket;
+
 /**
  * Binance API data streaming façade, supporting streaming of events through web sockets.
  */
 public interface BinanceApiWebSocketClient {
 
-  void onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback);
+  WebSocket onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback);
 
-  void onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
+  WebSocket onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
 
-  void onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback);
+  WebSocket onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback);
 
-  void onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback);
+  WebSocket onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback);
 }
