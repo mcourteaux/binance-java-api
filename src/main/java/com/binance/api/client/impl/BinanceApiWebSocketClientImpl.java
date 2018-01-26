@@ -9,6 +9,7 @@ import com.binance.api.client.domain.event.DepthEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
 import com.binance.api.client.domain.market.CandlestickInterval;
 import okhttp3.OkHttpClient;
+import okhttp3.Dispatcher;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 
@@ -23,7 +24,9 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
   private OkHttpClient client;
 
   public BinanceApiWebSocketClientImpl() {
-    this.client = new OkHttpClient();
+    Dispatcher d = new Dispatcher();
+    d.setMaxRequestsPerHost(100);
+    this.client = new OkHttpClient.Builder().dispatcher(d).build();
   }
 
   @Override
