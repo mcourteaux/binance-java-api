@@ -1,6 +1,8 @@
 package com.binance.api.client.domain.market;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -9,20 +11,24 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TickerStatistics {
-
+	@JsonProperty("s")
+  private String symbol;
   /**
    * Price change during the last 24 hours.
    */
+	@JsonProperty("p")
   private String priceChange;
 
   /**
    * Price change, in percentage, during the last 24 hours.
    */
+	@JsonProperty("P")
   private String priceChangePercent;
 
   /**
    * Weighted average price.
    */
+	@JsonProperty("w")
   private String weightedAvgPrice;
 
   /**
@@ -38,11 +44,13 @@ public class TickerStatistics {
   /**
    * Bid price.
    */
+	@JsonProperty("b")
   private String bidPrice;
 
   /**
    * Ask price.
    */
+	@JsonProperty("a")
   private String askPrice;
 
   /**
@@ -89,7 +97,15 @@ public class TickerStatistics {
    * Total number of trades during the last 24 hours.
    */
   private long count;
-
+  
+  public String getSymbol() {
+	  return symbol;
+  }
+  
+  public void setSymbol(String symbol) {
+	  this.symbol = symbol;
+  }
+  
   public String getPriceChange() {
     return priceChange;
   }
@@ -221,6 +237,7 @@ public class TickerStatistics {
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+    		.append("symbol", symbol)
         .append("priceChange", priceChange)
         .append("priceChangePercent", priceChangePercent)
         .append("weightedAvgPrice", weightedAvgPrice)
