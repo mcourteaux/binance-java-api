@@ -15,6 +15,7 @@ import okhttp3.WebSocket;
 public interface BinanceApiWebSocketClient {
 
   WebSocket onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback);
+  WebSocket onDepthEvent(String symbol, int level, BinanceApiCallback<DepthEvent> callback);
 
   WebSocket onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
 
