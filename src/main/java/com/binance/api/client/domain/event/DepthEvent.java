@@ -3,6 +3,8 @@ package com.binance.api.client.domain.event;
 import com.binance.api.client.domain.market.OrderBookEntry;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -35,15 +37,29 @@ public class DepthEvent {
   /**
    * Bid depth delta.
    */
-  @JsonProperty("b")
   private List<OrderBookEntry> bids;
-
+  @JsonSetter("b")
+  private void _setB(List<OrderBookEntry> bids) {
+	  this.bids = bids;
+  }
+  @JsonSetter("bids")
+  private void _setBids(List<OrderBookEntry> bids) {
+	  this.bids = bids;
+  }
+  
   /**
    * Ask depth delta.
    */
-  @JsonProperty("a")
   private List<OrderBookEntry> asks;
-
+  @JsonSetter("a")
+  private void _setA(List<OrderBookEntry> asks) {
+	  this.asks = asks;
+  }
+  @JsonSetter("asks")
+  private void _setAsks(List<OrderBookEntry> asks) {
+	  this.asks = asks;
+  }
+  
   public String getEventType() {
     return eventType;
   }
@@ -103,7 +119,7 @@ public class DepthEvent {
   public List<OrderBookEntry> getBids() {
     return bids;
   }
-
+  
   public void setBids(List<OrderBookEntry> bids) {
     this.bids = bids;
   }
@@ -111,7 +127,7 @@ public class DepthEvent {
   public List<OrderBookEntry> getAsks() {
     return asks;
   }
-
+  
   public void setAsks(List<OrderBookEntry> asks) {
     this.asks = asks;
   }

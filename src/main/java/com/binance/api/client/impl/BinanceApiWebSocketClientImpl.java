@@ -2,6 +2,7 @@ package com.binance.api.client.impl;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiWebSocketClient;
@@ -13,6 +14,8 @@ import com.binance.api.client.domain.event.UserDataUpdateEvent;
 import com.binance.api.client.domain.market.CandlestickInterval;
 import com.binance.api.client.domain.market.TickerStatistics;
 
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
@@ -25,13 +28,24 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
   private OkHttpClient client;
 
   public BinanceApiWebSocketClientImpl() {
-    this.client = new OkHttpClient();
+	Dispatcher d = new Dispatcher();
+	d.setMaxRequestsPerHost(100);
+    this.client = new OkHttpClient.Builder().dispatcher(d).build();
   }
 
   @Override
   public WebSocket onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback) {
     final String channel = String.format("%s@depth", symbol);
     return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, DepthEvent.class));
+  }
+  
+  @Override
+  public WebSocket onDepthEvent(String symbol, int level, BinanceApiCallback<DepthEvent> callback) {
+    final String channel = String.format("%s@depth" + level, symbol);
+    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(evt -> {
+    		evt.setSymbol(symbol);
+    		callback.onResponse(evt);
+    }, DepthEvent.class));
   }
 
   @Override
@@ -40,15 +54,18 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
     return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, CandlestickEvent.class));
   }
 
+  @Override
   public WebSocket onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback) {
     final String channel = String.format("%s@aggTrade", symbol);
     return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, AggTradeEvent.class));
   }
 
+  @Override
   public WebSocket onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback) {
     return createNewWebSocket(listenKey, new BinanceApiWebSocketListener<>(callback, UserDataUpdateEvent.class));
   }
 
+  @Override
   public WebSocket onMarketTickersEvent(BinanceApiCallback<TickerStatistics[]> callback) {
     final String channel = String.format("!ticker@arr");
     return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, TickerStatistics[].class));
