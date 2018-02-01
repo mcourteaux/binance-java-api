@@ -19,8 +19,6 @@ import java.lang.annotation.Annotation;
  */
 public class BinanceApiServiceGenerator {
 
-    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
     private static Retrofit.Builder builder =
         new Retrofit.Builder()
             .baseUrl(BinanceApiConstants.API_BASE_URL)
@@ -33,14 +31,17 @@ public class BinanceApiServiceGenerator {
     }
 
     public static <S> S createService(Class<S> serviceClass, String apiKey, String secret) {
+		Retrofit.Builder builder = new Retrofit.Builder()
+				.baseUrl(BinanceApiConstants.API_BASE_URL)
+				.addConverterFactory(JacksonConverterFactory.create());
+		Retrofit retrofit;
         if (!StringUtils.isEmpty(apiKey) && !StringUtils.isEmpty(secret)) {
             AuthenticationInterceptor interceptor = new AuthenticationInterceptor(apiKey, secret);
-            if (!httpClient.interceptors().contains(interceptor)) {
-                httpClient.addInterceptor(interceptor);
-                builder.client(httpClient.build());
-                retrofit = builder.build();
-            }
+            	OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+			httpClient.addInterceptor(interceptor);
+			builder.client(httpClient.build());
         }
+		retrofit = builder.build();
         return retrofit.create(serviceClass);
     }
 
