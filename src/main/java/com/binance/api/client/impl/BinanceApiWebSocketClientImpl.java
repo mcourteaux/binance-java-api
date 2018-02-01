@@ -54,6 +54,14 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
     createNewWebSocket(channel, new BinanceApiWebSocketListener<List<AllMarketTickersEvent>>(callback));
   }
 
+  @Override
+  public void onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback) {
+      symbols.stream()
+              .map(symbol -> String.format("%s@kline_%s", symbol, interval.getIntervalId()))
+              .reduce((s1, s2) -> s1 + "/" + s2)
+              .ifPresent(channel -> createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, CandlestickEvent.class)));
+  }
+
   private void createNewWebSocket(String channel, BinanceApiWebSocketListener<?> listener) {
     String streamingUrl = String.format("%s/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
     Request request = new Request.Builder().url(streamingUrl).build();

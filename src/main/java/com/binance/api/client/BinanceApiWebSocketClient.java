@@ -22,4 +22,7 @@ public interface BinanceApiWebSocketClient {
   void onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback);
 
   void onAllMarketTickersEvent(BinanceApiCallback<List<AllMarketTickersEvent>> callback);
+
+  void onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
+
 }
