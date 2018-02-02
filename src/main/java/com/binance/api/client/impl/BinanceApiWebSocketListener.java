@@ -14,11 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class BinanceApiWebSocketListener<T> extends WebSocketListener {
 
-  private BinanceApiCallback<T> callback;
+  protected BinanceApiCallback<T> callback;
 
-  private Class<T> eventClass;
+  protected Class<T> eventClass;
 
-  private TypeReference<T> eventTypeReference;
+  protected TypeReference<T> eventTypeReference;
 
   private boolean closing = false;
 
@@ -34,6 +34,7 @@ public class BinanceApiWebSocketListener<T> extends WebSocketListener {
 
   @Override
   public void onMessage(WebSocket webSocket, String text) {
+	  System.out.println("onMessage: " + text);
     ObjectMapper mapper = new ObjectMapper();
     try {
       T event = null;
