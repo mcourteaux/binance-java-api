@@ -47,7 +47,7 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
   @Override
   public void onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback) {
 	List<String> channels = symbols.stream().map(symbol -> String.format("%s@kline_%s", symbol, interval.getIntervalId())).collect(Collectors.toList());
-	createNewWebSocket(channels, new BinanceApiCombinedWebSocketListener<CandlestickEvent, CombinedStreamEvent<CandlestickEvent>>(callback));
+	createNewWebSocket(channels, new BinanceApiCombinedWebSocketListener<>(callback, CandlestickEvent.class));
   }
 
   @Override
@@ -73,7 +73,7 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
   }
   
   /* For combined streams */
-  private void createNewWebSocket(List<String> channels, BinanceApiCombinedWebSocketListener<?,?> listener) {
+  private void createNewWebSocket(List<String> channels, BinanceApiCombinedWebSocketListener<?> listener) {
 	String combinedChannels = channels.stream().reduce((s1, s2) -> s1 + "/" + s2).get();
 	String streamingUrl = String.format("%s/stream?streams=%s", BinanceApiConstants.WS_API_BASE_URL, combinedChannels);
 	createNewWebSocketForUrl(streamingUrl, listener);
