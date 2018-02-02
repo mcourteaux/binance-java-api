@@ -14,11 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class BinanceApiWebSocketListener<T> extends WebSocketListener {
 
-  private BinanceApiCallback<T> callback;
+  protected BinanceApiCallback<T> callback;
 
-  private Class<T> eventClass;
+  protected Class<T> eventClass;
 
-  private TypeReference<T> eventTypeReference;
+  protected TypeReference<T> eventTypeReference;
 
   public BinanceApiWebSocketListener(BinanceApiCallback<T> callback, Class<T> eventClass) {
     this.callback = callback;

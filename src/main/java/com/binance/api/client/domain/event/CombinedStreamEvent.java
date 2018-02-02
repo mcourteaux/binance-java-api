@@ -1,7 +1,9 @@
 package com.binance.api.client.domain.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CombinedStreamEvent<T> {
   @JsonProperty("stream")
   private String streamName;
