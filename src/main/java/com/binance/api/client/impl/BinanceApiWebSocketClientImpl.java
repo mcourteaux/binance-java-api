@@ -3,6 +3,8 @@ package com.binance.api.client.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -29,43 +31,57 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
     this.client = new OkHttpClient.Builder().dispatcher(d).build();
   }
 
+  @Override
   public void onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback) {
     final String channel = String.format("%s@depth", symbol);
-    createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, DepthEvent.class));
+    createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
   }
 
   @Override
   public void onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback) {
     final String channel = String.format("%s@kline_%s", symbol, interval.getIntervalId());
-    createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, CandlestickEvent.class));
+    createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
   }
-
-  public void onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback) {
-    final String channel = String.format("%s@aggTrade", symbol);
-    createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, AggTradeEvent.class));
-  }
-
-  public void onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback) {
-    createNewWebSocket(listenKey, new BinanceApiWebSocketListener<>(callback, UserDataUpdateEvent.class));
-  }
-
-  public void onAllMarketTickersEvent(BinanceApiCallback<List<AllMarketTickersEvent>> callback) {
-    final String channel = "!ticker@arr";
-    createNewWebSocket(channel, new BinanceApiWebSocketListener<List<AllMarketTickersEvent>>(callback));
+  
+  @Override
+  public void onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback) {
+	List<String> channels = symbols.stream().map(symbol -> String.format("%s@kline_%s", symbol, interval.getIntervalId())).collect(Collectors.toList());
+	createNewWebSocket(channels, new BinanceApiCombinedWebSocketListener<>(callback));
   }
 
   @Override
-  public void onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback) {
-      symbols.stream()
-              .map(symbol -> String.format("%s@kline_%s", symbol, interval.getIntervalId()))
-              .reduce((s1, s2) -> s1 + "/" + s2)
-              .ifPresent(channel -> createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, CandlestickEvent.class)));
+  public void onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback) {
+    final String channel = String.format("%s@aggTrade", symbol);
+    createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
+  }
+
+  @Override
+  public void onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback) {
+    createNewWebSocket(listenKey, new BinanceApiWebSocketListener<>(callback));
+  }
+
+  @Override
+  public void onAllMarketTickersEvent(BinanceApiCallback<List<AllMarketTickersEvent>> callback) {
+    final String channel = "!ticker@arr";
+    createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
   }
 
   private void createNewWebSocket(String channel, BinanceApiWebSocketListener<?> listener) {
-    String streamingUrl = String.format("%s/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
-    Request request = new Request.Builder().url(streamingUrl).build();
-    client.newWebSocket(request, listener);
+	String streamingUrl = String.format("%s/ws/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
+    createNewWebSocketForUrl(streamingUrl, listener);
+  }
+  
+  /* For combined streams */
+  private <T> void createNewWebSocket(List<String> channels, BinanceApiCombinedWebSocketListener<T> listener) {
+	String combinedChannels = channels.stream().reduce((s1, s2) -> s1 + "/" + s2).get();
+	String streamingUrl = String.format("%s/stream?streams=%s", BinanceApiConstants.WS_API_BASE_URL, combinedChannels);
+	
+	createNewWebSocketForUrl(streamingUrl, listener);
+  }
+  
+  private void createNewWebSocketForUrl(String streamingUrl, BinanceApiWebSocketListener<?> listener) {
+	  Request request = new Request.Builder().url(streamingUrl).build();
+	  client.newWebSocket(request, listener);
   }
 
   @Override
