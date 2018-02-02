@@ -5,6 +5,8 @@ import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.market.CandlestickInterval;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Market data stream endpoints examples.
@@ -24,5 +26,7 @@ public class MarketDataStreamExample {
 
     // Obtain 1m candlesticks in real-time for ETH/BTC
     client.onCandlestickEvent("ethbtc", CandlestickInterval.ONE_MINUTE, response -> System.out.println(response));
+
+    client.onCandlestickEvent(new ArrayList<>(Arrays.asList("ltcbtc", "etcbtc")), CandlestickInterval.ONE_MINUTE, System.out::println);
   }
 }

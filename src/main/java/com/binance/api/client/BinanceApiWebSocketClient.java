@@ -22,6 +22,8 @@ public interface BinanceApiWebSocketClient extends Closeable {
 
   Closeable onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
   
+  Closeable onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
+
   Closeable onMarketTickersEvent(BinanceApiCallback<TickerStatistics[]> callback);
 
   Closeable onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback);

@@ -2,6 +2,7 @@ package com.binance.api.client.impl;
 
 import java.io.Closeable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiWebSocketClient;
@@ -35,7 +36,7 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
   @Override
   public Closeable onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback) {
     final String channel = String.format("%s@depth", symbol);
-    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, DepthEvent.class));
+    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
   }
 
   @Override
@@ -50,44 +51,61 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
   @Override
   public Closeable onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback) {
     final String channel = String.format("%s@kline_%s", symbol, interval.getIntervalId());
-    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, CandlestickEvent.class));
+    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
+  }
+  
+  @Override
+  public Closeable onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback) {
+	List<String> channels = symbols.stream().map(symbol -> String.format("%s@kline_%s", symbol, interval.getIntervalId())).collect(Collectors.toList());
+	return createNewWebSocket(channels, new BinanceApiCombinedWebSocketListener<>(callback));
   }
 
   @Override
   public Closeable onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback) {
     final String channel = String.format("%s@aggTrade", symbol);
-    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, AggTradeEvent.class));
+    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
   }
 
   @Override
   public Closeable onMarketTickersEvent(BinanceApiCallback<TickerStatistics[]> callback) {
     final String channel = String.format("!ticker@arr");
-    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback, TickerStatistics[].class));
+    return createNewWebSocket(channel, new BinanceApiWebSocketListener<>(callback));
   }
 
   public Closeable onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback) {
-    return createNewWebSocket(listenKey, new BinanceApiWebSocketListener<>(callback, UserDataUpdateEvent.class));
+    return createNewWebSocket(listenKey, new BinanceApiWebSocketListener<>(callback));
   }
   
   public Closeable onAllMarketTickersEvent(BinanceApiCallback<List<AllMarketTickersEvent>> callback) {
     final String channel = "!ticker@arr";
     return createNewWebSocket(channel, new BinanceApiWebSocketListener<List<AllMarketTickersEvent>>(callback));
   }
+
+  private Closeable createNewWebSocket(String channel, BinanceApiWebSocketListener<?> listener) {
+	String streamingUrl = String.format("%s/ws/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
+    return createNewWebSocketForUrl(streamingUrl, listener);
+  }
+  
+  /* For combined streams */
+  private <T> Closeable createNewWebSocket(List<String> channels, BinanceApiCombinedWebSocketListener<T> listener) {
+	String combinedChannels = channels.stream().reduce((s1, s2) -> s1 + "/" + s2).get();
+	String streamingUrl = String.format("%s/stream?streams=%s", BinanceApiConstants.WS_API_BASE_URL, combinedChannels);
+	return createNewWebSocketForUrl(streamingUrl, listener);
+  }
+  
+  private Closeable createNewWebSocketForUrl(String streamingUrl, BinanceApiWebSocketListener<?> listener) {
+	  Request request = new Request.Builder().url(streamingUrl).build();
+	  final WebSocket webSocket = client.newWebSocket(request, listener);
+	    return () -> {
+	      final int code = 1000;
+	      listener.onClosing(webSocket, code, null);
+	      webSocket.close(code, null);
+	      listener.onClosed(webSocket, code, null);
+	    };
+  }
   
   @Override
   public void close() {
     client.dispatcher().executorService().shutdown();
   }
-
-  private Closeable createNewWebSocket(String channel, BinanceApiWebSocketListener<?> listener) {
-    String streamingUrl = String.format("%s/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
-    Request request = new Request.Builder().url(streamingUrl).build();
-    final WebSocket webSocket = client.newWebSocket(request, listener);
-    return () -> {
-      final int code = 1000;
-      listener.onClosing(webSocket, code, null);
-      webSocket.close(code, null);
-      listener.onClosed(webSocket, code, null);
-    };
-  } 
 }
