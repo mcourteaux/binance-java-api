@@ -1,11 +1,13 @@
 package com.binance.api.client.domain.general;
 
+import com.binance.api.client.constant.BinanceApiConstants;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Rate limits.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RateLimit {
 
   private RateLimitType rateLimitType;
@@ -40,7 +42,7 @@ public class RateLimit {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+    return new ToStringBuilder(this, BinanceApiConstants.TO_STRING_BUILDER_STYLE)
         .append("rateLimitType", rateLimitType)
         .append("interval", interval)
         .append("limit", limit)

@@ -19,6 +19,8 @@ import java.lang.annotation.Annotation;
  */
 public class BinanceApiServiceGenerator {
 
+    static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
     private static Retrofit.Builder builder =
         new Retrofit.Builder()
             .baseUrl(BinanceApiConstants.API_BASE_URL)

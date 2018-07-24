@@ -186,7 +186,8 @@ System.out.println(order.getExecutedQty());
 
 #### Placing a MARKET order
 ```java
-NewOrderResponse newOrderResponse = client.newOrder(marketBuy("LINKETH", "1000"));
+NewOrderResponse newOrderResponse = client.newOrder(marketBuy("LINKETH", "1000").orderRespType(OrderResponseType.FULL));
+List<Trade> fills = newOrderResponse.getFills();
 System.out.println(newOrderResponse.getClientOrderId());
 ```
 <details>
@@ -277,6 +278,40 @@ client.closeUserDataStream(listenKey);
 #### Initialize the WebSocket client
 ```java
 BinanceApiWebSocketClient client = BinanceApiClientFactory.newInstance().newWebSocketClient();
+```
+
+#### Handling web socket errors
+
+Each of the methods on `BinanceApiWebSocketClient`, which opens a new web socket, takes a `BinanceApiCallback`, which is
+called for each event received from the Binance servers. 
+
+The `BinanceApiCallback` interface also has a `onFailure(Throwable)` method, which, optionally, can be implemented to 
+receive notifications if the web-socket fails, e.g. disconnection.   
+
+```java
+client.onAggTradeEvent(symbol.toLowerCase(), new BinanceApiCallback<AggTradeEvent>() {
+    @Override
+    public void onResponse(final AggTradeEvent response) {
+        System.out.println(response);
+    }
+
+    @Override
+    public void onFailure(final Throwable cause) {
+        System.err.println("Web socket failed");
+        cause.printStackTrace(System.err);
+    }
+});
+```
+
+#### Closing web sockets
+
+Each of the methods on `BinanceApiWebSocketClient`, which opens a new web socket, also returns a `Closeable`.
+This `Closeable` can be used to close the underlying web socket and free any associated resources, e.g.
+
+```java
+Closable ws = client.onAggTradeEvent("ethbtc", someCallback);
+// some time later...
+ws.close();
 ```
 
 #### Listen for aggregated trade events for ETH/BTC

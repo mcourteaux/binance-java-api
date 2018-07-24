@@ -9,28 +9,76 @@ import com.binance.api.client.domain.event.CandlestickEvent;
 import com.binance.api.client.domain.event.DepthEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
 import com.binance.api.client.domain.market.CandlestickInterval;
-import com.binance.api.client.domain.market.TickerStatistics;
 
 /**
  * Binance API data streaming façade, supporting streaming of events through web sockets.
  */
 public interface BinanceApiWebSocketClient extends Closeable {
 
-  Closeable onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback);
+    /**
+     * Open a new web socket to receive {@link DepthEvent depthEvents} on a callback.
+     *
+     * @param symbol   the market symbol to subscribe to
+     * @param callback the callback to call on new events
+     * @return a {@link Closeable} that allows the underlying web socket to be closed.
+     */
+    Closeable onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback);
 
-  Closeable onDepthEvent(String symbol, int level, BinanceApiCallback<DepthEvent> callback);
+    /**
+     * Open a new web socket to receive {@link DepthEvent depthEvents} on a callback.
+     *
+     * @param symbol   the market symbol to subscribe to
+     * @param level	   the level for the market depth
+     * @param callback the callback to call on new events
+     * @return a {@link Closeable} that allows the underlying web socket to be closed.
+     */
+	Closeable onDepthEvent(String symbol, int level, BinanceApiCallback<DepthEvent> callback);
 
-  Closeable onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
-  
-  Closeable onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
+    /**
+     * Open a new web socket to receive {@link CandlestickEvent candlestickEvents} on a callback.
+     *
+     * @param symbol   the market symbol to subscribe to
+     * @param interval the interval of the candles tick events required
+     * @param callback the callback to call on new events
+     * @return a {@link Closeable} that allows the underlying web socket to be closed.
+     */
+    Closeable onCandlestickEvent(String symbol, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
 
-  Closeable onMarketTickersEvent(BinanceApiCallback<TickerStatistics[]> callback);
+    /**
+     * Open a new web socket to receive {@link CandlestickEvent candlestickEvents} for multiple symbols on a callback.
+     *
+     * @param symbol   the market symbol to subscribe to
+     * @param interval the interval of the candles tick events required
+     * @param callback the callback to call on new events
+     * @return a {@link Closeable} that allows the underlying web socket to be closed.
+     */
+    Closeable onCandlestickEvent(List<String> symbols, CandlestickInterval interval, BinanceApiCallback<CandlestickEvent> callback);
 
-  Closeable onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback);
+    /**
+     * Open a new web socket to receive {@link AggTradeEvent aggTradeEvents} on a callback.
+     *
+     * @param symbol   the market symbol to subscribe to
+     * @param callback the callback to call on new events
+     * @return a {@link Closeable} that allows the underlying web socket to be closed.
+     */
+    Closeable onAggTradeEvent(String symbol, BinanceApiCallback<AggTradeEvent> callback);
 
-  Closeable onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback);
+    /**
+     * Open a new web socket to receive {@link UserDataUpdateEvent userDataUpdateEvents} on a callback.
+     *
+     * @param listenKey the listen key to subscribe to.
+     * @param callback  the callback to call on new events
+     * @return a {@link Closeable} that allows the underlying web socket to be closed.
+     */
+    Closeable onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback);
 
-  Closeable onAllMarketTickersEvent(BinanceApiCallback<List<AllMarketTickersEvent>> callback);
-  
-  void close();
+    /**
+     * Open a new web socket to receive {@link AllMarketTickersEvent allMarketTickersEvents} on a callback.
+     *
+     * @param callback the callback to call on new events
+     * @return a {@link Closeable} that allows the underlying web socket to be closed.
+     */
+    Closeable onAllMarketTickersEvent(BinanceApiCallback<List<AllMarketTickersEvent>> callback);
+
+    void close();
 }
