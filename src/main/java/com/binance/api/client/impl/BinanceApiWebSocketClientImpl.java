@@ -13,7 +13,6 @@ import com.binance.api.client.domain.event.CandlestickEvent;
 import com.binance.api.client.domain.event.DepthEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
 import com.binance.api.client.domain.market.CandlestickInterval;
-import com.binance.api.client.domain.market.TickerStatistics;
 
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;

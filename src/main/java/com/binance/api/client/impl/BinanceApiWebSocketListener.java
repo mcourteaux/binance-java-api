@@ -34,7 +34,7 @@ public class BinanceApiWebSocketListener<T> extends WebSocketListener {
 
   @Override
   public void onMessage(WebSocket webSocket, String text) {
-	  System.out.println("onMessage: " + text);
+	  //System.out.println("onMessage: " + text);
     ObjectMapper mapper = new ObjectMapper();
     try {
       T event = null;

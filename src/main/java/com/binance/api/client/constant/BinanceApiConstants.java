@@ -15,7 +15,7 @@ public class BinanceApiConstants {
   /**
    * Streaming API base URL.
    */
-  public static final String WS_API_BASE_URL = "wss://stream.binance.com:9443";
+  public static final String WS_API_BASE_URL = "wss://stream.binance.com:9443/ws";
 
   /**
    * Asset info base URL.
