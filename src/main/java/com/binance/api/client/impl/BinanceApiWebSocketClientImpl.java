@@ -99,7 +99,7 @@ public class BinanceApiWebSocketClientImpl implements BinanceApiWebSocketClient,
 	}
 
 	private Closeable createNewWebSocket(String channel, BinanceApiWebSocketListener<?> listener) {
-        String streamingUrl = String.format("%s/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
+        String streamingUrl = String.format("%s/ws/%s", BinanceApiConstants.WS_API_BASE_URL, channel);
         Request request = new Request.Builder().url(streamingUrl).build();
         final WebSocket webSocket = client.newWebSocket(request, listener);
         return () -> {
